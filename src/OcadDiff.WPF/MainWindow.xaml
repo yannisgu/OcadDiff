@@ -9,6 +9,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid>
@@ -29,7 +30,8 @@
                 </StackPanel>
             </StackPanel>
         </Grid>
-        <ScrollViewer Grid.Row="1">
+        <TextBlock Grid.Row="1" x:Name="Status"></TextBlock>
+        <ScrollViewer Grid.Row="2">
             <ItemsControl x:Name="DiffViewer">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

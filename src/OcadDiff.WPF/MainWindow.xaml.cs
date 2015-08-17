@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -59,44 +60,53 @@ namespace OcadDiff.WPF
         {
             if (!string.IsNullOrEmpty(SourceFile.Text) && !string.IsNullOrEmpty(TargetFile.Text))
             {
-                var diff = new OcadDiffGenerator(SourceFile.Text, TargetFile.Text).GetDiff();
-
-                var sourceRenderer = new OcadRenderer(diff.Source);
-                var targetRenderer = new OcadRenderer(diff.Target);
-
-                var viewModel = new DiffViewModel();
-
-                foreach (var obj in diff.DeletedObjects)
+                Status.Text = "Loading... This will take a moment.";
+                var diffGenerator = new OcadDiffGenerator(SourceFile.Text, TargetFile.Text);
+                Task.Run(() =>
                 {
-                    var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
-                    var minY = -obj.Poly.Max(p => p.Y.Coordinate) -1000;
-                    var maxX = obj.Poly.Max(p => p.X.Coordinate) + 1000;
-                    var maxY = -obj.Poly.Min(p => p.Y.Coordinate) + 1000;
+                    var diff = diffGenerator.GetDiff();
+                    var sourceRenderer = new OcadRenderer(diff.Source);
+                    var targetRenderer = new OcadRenderer(diff.Target);
 
-                    viewModel.Diffs.Add( new DiffViewModelItems()
+                    var viewModel = new DiffViewModel();
+
+                    foreach (var obj in diff.DeletedObjects)
                     {
-                       LeftBitmap  = sourceRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
-                       RightBitmap = targetRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
-                       Status ="Removed"
-                    }); 
-                }
+                        var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
+                        var minY = -obj.Poly.Max(p => p.Y.Coordinate) - 1000;
+                        var maxX = obj.Poly.Max(p => p.X.Coordinate) + 1000;
+                        var maxY = -obj.Poly.Min(p => p.Y.Coordinate) + 1000;
 
-                foreach (var obj in diff.AddedObjects)
-                {
-                    var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
-                    var minY = -obj.Poly.Max(p => p.Y.Coordinate) -1000;
-                    var maxX = obj.Poly.Max(p => p.X.Coordinate) + 1000;
-                    var maxY = -obj.Poly.Min(p => p.Y.Coordinate) + 1000;
+                        viewModel.Diffs.Add(new DiffViewModelItems()
+                        {
+                            LeftBitmap = sourceRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
+                            RightBitmap = targetRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
+                            Status = "Removed"
+                        });
+                    }
 
-                    viewModel.Diffs.Add(new DiffViewModelItems()
+                    foreach (var obj in diff.AddedObjects)
                     {
-                        LeftBitmap = sourceRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
-                        RightBitmap = targetRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
-                        Status = "Added"
-                    });
-                }
+                        var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
+                        var minY = -obj.Poly.Max(p => p.Y.Coordinate) - 1000;
+                        var maxX = obj.Poly.Max(p => p.X.Coordinate) + 1000;
+                        var maxY = -obj.Poly.Min(p => p.Y.Coordinate) + 1000;
 
-                DiffViewer.ItemsSource = viewModel.Diffs;
+                        viewModel.Diffs.Add(new DiffViewModelItems()
+                        {
+                            LeftBitmap = sourceRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
+                            RightBitmap = targetRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
+                            Status = "Added"
+                        });
+                    }
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        DiffViewer.ItemsSource = viewModel.Diffs;
+                        Status.Text = "";
+                    }
+                );
+                });
+
             }
         }
 
