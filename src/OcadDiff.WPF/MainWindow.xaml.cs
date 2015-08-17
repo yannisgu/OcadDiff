@@ -66,7 +66,7 @@ namespace OcadDiff.WPF
 
                 var viewModel = new DiffViewModel();
 
-                foreach (var obj in diff.DeletedObjects.Take(10))
+                foreach (var obj in diff.DeletedObjects)
                 {
                     var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
                     var minY = -obj.Poly.Max(p => p.Y.Coordinate) -1000;
@@ -81,7 +81,7 @@ namespace OcadDiff.WPF
                     }); 
                 }
 
-                foreach (var obj in diff.AddedObjects.Take(10))
+                foreach (var obj in diff.AddedObjects)
                 {
                     var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
                     var minY = -obj.Poly.Max(p => p.Y.Coordinate) -1000;
