@@ -7,24 +7,49 @@
         mc:Ignorable="d"
         Title="OcadDiff" Height="800" Width="800">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-            <StackPanel Orientation="Horizontal">
-                <TextBox x:Name="SourceFile" Width="300"></TextBox>
-                <Button Margin="20,0,0,0" x:Name="BrowseSourceFile" Click="BrowseSourceFile_OnClick">Browse...</Button>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="SourceFile" Width="300"></TextBox>
+                    <Button Margin="20,0,0,0" x:Name="BrowseSourceFile" Click="BrowseSourceFile_OnClick">Browse...</Button>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
-        <StackPanel Grid.Column="1">
-            <StackPanel Orientation="Horizontal">
-                <TextBox x:Name="TargetFile" Width="300"></TextBox>
-                <Button x:Name="BrowseTargetFile" Margin="20,0,0,0" Click="BrowseTargetFile_OnClick">Browse...</Button>
+            <StackPanel Grid.Column="1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="TargetFile" Width="300"></TextBox>
+                    <Button x:Name="BrowseTargetFile" Margin="20,0,0,0" Click="BrowseTargetFile_OnClick">Browse...</Button>
+                </StackPanel>
             </StackPanel>
-            <DockPanel Height="800">
-                <TextBox x:Name="TargetResult" AcceptsReturn="True" TextWrapping="Wrap" ></TextBox>
-            </DockPanel>
-        </StackPanel>
+        </Grid>
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl x:Name="DiffViewer">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Status}"></TextBlock>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*">
+                                    </ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Image Source="{Binding LeftBitmapImage}" Grid.Column="0" Margin="10,10,10,10" />
+                                <Image Source="{Binding RightBitmapImage}" Grid.Column="1" Margin="10,10,10,10"/>
+                            </Grid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
     </Grid>
 </Window>

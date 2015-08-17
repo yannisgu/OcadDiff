@@ -39,8 +39,19 @@
       <HintPath>..\..\packages\CompareNETObjects.3.02.0.0\lib\net451\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="OcadParser, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\OcadParser\src\OcadParser\bin\Debug\OcadParser.dll</HintPath>
+    </Reference>
+    <Reference Include="OcadParser.Renderer">
+      <HintPath>..\..\..\OcadParser\src\OcadParser.Renderer\bin\Debug\OcadParser.Renderer.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg">
+      <HintPath>..\..\..\OcadParser\src\OcadParser.Renderer\bin\Debug\Svg.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />

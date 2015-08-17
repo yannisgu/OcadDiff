@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using OcadParser;
+using OcadParser.Models;
 using OcadParser.Models.CourseSetting;
 
 namespace OcadDiff.Logic
@@ -23,6 +24,37 @@ namespace OcadDiff.Logic
 
         public OcadDiff GetDiff()
         {
+            var source = new OcadFileReader(SourceFile).ReadProject();
+            var target = new OcadFileReader(TargetFile).ReadProject();
+            var diff = new OcadDiff() {Source = source, Target = target};
+            CompareObjects(source, target, diff);
+            return diff;
+        }
+
+        private void CompareObjects(OcadBaseProject source, OcadBaseProject target, OcadDiff diff)
+        {
+            // Copy object lists
+            var srcObjects = new List<OcadFileOcadObject>(source.Objects);
+            var tarObjects = new List<OcadFileOcadObject>(target.Objects);
+            foreach (var obj in srcObjects)
+            {
+                var foundObject = tarObjects.FirstOrDefault(_ => _.Equals(obj));
+                if (foundObject == null)
+                {
+                    diff.DeletedObjects.Add(obj);
+                }
+                else
+                {
+                    tarObjects.Remove(foundObject);
+                }
+            }
+
+            diff.AddedObjects.AddRange(tarObjects);
+        }
+        
+
+        /*public OcadDiff GetDiff()
+        {
             var diff = new OcadDiff();
             var compareLogic = new CompareLogic();
             compareLogic.Config.MaxDifferences = Int32.MaxValue;
@@ -30,7 +62,7 @@ namespace OcadDiff.Logic
             compareLogic.Config.CollectionMatchingSpec[typeof(CourseSettingObject)] = new [] { "Code" };
             diff.Report = compareLogic.Compare(GetProject(SourceFile), GetProject(TargetFile));
             return diff;
-        }
+        }*/
 
         private OcadCourseSettingProject GetProject(string sourceFile)
         {
