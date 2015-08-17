@@ -30,6 +30,7 @@ namespace OcadDiff.WPF
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new DiffViewModel() {ShowMaxWarning = Visibility.Hidden};
         }
 
         private void BrowseSourceFile_OnClick(object sender, RoutedEventArgs e)
@@ -70,7 +71,9 @@ namespace OcadDiff.WPF
 
                     var viewModel = new DiffViewModel();
 
-                    foreach (var obj in diff.DeletedObjects)
+                    var limit = 200;
+
+                    foreach (var obj in diff.DeletedObjects.Take(limit))
                     {
                         var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
                         var minY = -obj.Poly.Max(p => p.Y.Coordinate) - 1000;
@@ -85,7 +88,7 @@ namespace OcadDiff.WPF
                         });
                     }
 
-                    foreach (var obj in diff.AddedObjects)
+                    foreach (var obj in diff.AddedObjects.Take(limit - diff.DeletedObjects.Count))
                     {
                         var minX = obj.Poly.Min(p => p.X.Coordinate) - 1000;
                         var minY = -obj.Poly.Max(p => p.Y.Coordinate) - 1000;
@@ -99,9 +102,15 @@ namespace OcadDiff.WPF
                             Status = "Added"
                         });
                     }
+
+                    viewModel.ShowMaxWarning =
+                        limit < diff.AddedObjects.Count + diff.DeletedObjects.Count
+                            ? Visibility.Visible
+                            : Visibility.Hidden;
+
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        DiffViewer.ItemsSource = viewModel.Diffs;
+                        this.DataContext = viewModel;
                         Status.Text = "";
                     }
                 );
@@ -119,6 +128,7 @@ namespace OcadDiff.WPF
     public class DiffViewModel
     {
         public List<DiffViewModelItems> Diffs { get; } = new List<DiffViewModelItems>();
+        public Visibility ShowMaxWarning { get; set; }
     }
 
     public class DiffViewModelItems

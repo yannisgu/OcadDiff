@@ -32,25 +32,28 @@
         </Grid>
         <TextBlock Grid.Row="1" x:Name="Status"></TextBlock>
         <ScrollViewer Grid.Row="2">
-            <ItemsControl x:Name="DiffViewer">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Status}"></TextBlock>
+            <StackPanel>
+                <ItemsControl x:Name="DiffViewer" ItemsSource="{Binding Diffs}">
+                    <ItemsControl.ItemTemplate >
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Status}"></TextBlock>
 
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*">
-                                    </ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Image Source="{Binding LeftBitmapImage}" Grid.Column="0" Margin="10,10,10,10" />
-                                <Image Source="{Binding RightBitmapImage}" Grid.Column="1" Margin="10,10,10,10"/>
-                            </Grid>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*">
+                                        </ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Source="{Binding LeftBitmapImage}" Grid.Column="0" Margin="10,10,10,10" />
+                                    <Image Source="{Binding RightBitmapImage}" Grid.Column="1" Margin="10,10,10,10"/>
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Visibility="{Binding ShowMaxWarning}" FontWeight="Bold" FontSize="15">There are more than 200 differences. Currently this is the maximum OcadDiff supports.</TextBlock>
+            </StackPanel>
         </ScrollViewer>
 
     </Grid>
