@@ -18,6 +18,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using OcadDiff.Logic;
 using OcadParser.Renderer;
+using Svg;
+using Svg.Transforms;
 using Color = System.Drawing.Color;
 
 namespace OcadDiff.WPF
@@ -30,7 +32,7 @@ namespace OcadDiff.WPF
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new DiffViewModel() {ShowMaxWarning = Visibility.Hidden};
+            DataContext = new DiffViewModel {ShowMaxWarning = Visibility.Hidden};
         }
 
         private void BrowseSourceFile_OnClick(object sender, RoutedEventArgs e)
@@ -68,6 +70,8 @@ namespace OcadDiff.WPF
                     var diff = diffGenerator.GetDiff();
                     var sourceRenderer = new OcadRenderer(diff.Source);
                     var targetRenderer = new OcadRenderer(diff.Target);
+                    sourceRenderer.EnsureSvg();
+                    targetRenderer.EnsureSvg();
 
                     var viewModel = new DiffViewModel();
 
@@ -79,6 +83,17 @@ namespace OcadDiff.WPF
                         var minY = -obj.Poly.Max(p => p.Y.Coordinate) - 1000;
                         var maxX = obj.Poly.Max(p => p.X.Coordinate) + 1000;
                         var maxY = -obj.Poly.Min(p => p.Y.Coordinate) + 1000;
+                        var addedElements = new List<SvgElement>();
+                        foreach (var element in sourceRenderer.ObjectElementMapping[obj])
+                        {
+                            var highlightElement = element.DeepCopy();
+                            highlightElement.StrokeWidth = highlightElement.StrokeWidth + 100;
+                            highlightElement.Stroke = new SvgColourServer(Color.Red);
+                            highlightElement.StrokeOpacity= (float)0.5;
+                            var index = sourceRenderer.Svg.Children.IndexOf(element);
+                            sourceRenderer.Svg.Children.Insert(index, highlightElement);
+                            addedElements.Add(highlightElement);
+                        }
 
                         viewModel.Diffs.Add(new DiffViewModelItems()
                         {
@@ -86,6 +101,8 @@ namespace OcadDiff.WPF
                             RightBitmap = targetRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
                             Status = "Removed"
                         });
+
+                        addedElements.ForEach(_ => sourceRenderer.Svg.Children.Remove(_));
                     }
 
                     foreach (var obj in diff.AddedObjects.Take(limit - diff.DeletedObjects.Count))
@@ -95,12 +112,27 @@ namespace OcadDiff.WPF
                         var maxX = obj.Poly.Max(p => p.X.Coordinate) + 1000;
                         var maxY = -obj.Poly.Min(p => p.Y.Coordinate) + 1000;
 
+
+                        var addedElements = new List<SvgElement>();
+                        foreach (var element in targetRenderer.ObjectElementMapping[obj])
+                        {
+                            var highlightElement = element.DeepCopy();
+                            highlightElement.StrokeWidth = highlightElement.StrokeWidth + 100;
+                            highlightElement.Stroke = new SvgColourServer(Color.Green);
+                            highlightElement.StrokeOpacity = (float)0.5;
+                            highlightElement.Fill = SvgPaintServer.None;
+                            var index = targetRenderer.Svg.Children.IndexOf(element);
+                            targetRenderer.Svg.Children.Insert(index, highlightElement);
+                            addedElements.Add(highlightElement);
+                        }
                         viewModel.Diffs.Add(new DiffViewModelItems()
                         {
                             LeftBitmap = sourceRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
                             RightBitmap = targetRenderer.GetBitmap(minX, minY, maxX, maxY, 300),
                             Status = "Added"
                         });
+
+                        addedElements.ForEach(_ => targetRenderer.Svg.Children.Remove(_));
                     }
 
                     viewModel.ShowMaxWarning =
